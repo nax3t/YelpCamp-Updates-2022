@@ -19,15 +19,13 @@ const userRoutes = require('./routes/users');
 const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
 
-const MongoDBStore = require("connect-mongo")(session);
+const MongoStore = require("connect-mongo");
 
 const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/yelp-camp';
 
 mongoose.connect(dbUrl, {
     useNewUrlParser: true,
-    useCreateIndex: true,
     useUnifiedTopology: true,
-    useFindAndModify: false
 });
 
 const db = mongoose.connection;
@@ -50,8 +48,8 @@ app.use(mongoSanitize({
 }))
 const secret = process.env.SECRET || 'thisshouldbeabettersecret!';
 
-const store = new MongoDBStore({
-    url: dbUrl,
+const store = MongoStore.create({
+    mongoUrl: dbUrl,
     secret,
     touchAfter: 24 * 60 * 60
 });
@@ -115,7 +113,7 @@ app.use(
                 "'self'",
                 "blob:",
                 "data:",
-                "https://res.cloudinary.com/douqbebwk/", //SHOULD MATCH YOUR CLOUDINARY ACCOUNT! 
+                "https://res.cloudinary.com/", //SHOULD MATCH YOUR CLOUDINARY ACCOUNT! 
                 "https://images.unsplash.com",
             ],
             fontSrc: ["'self'", ...fontSrcUrls],
@@ -161,5 +159,5 @@ app.use((err, req, res, next) => {
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
-    console.log(`Serving on port ${port}`)
+    console.log(`Serving at http://localhost:${port}`)
 })
